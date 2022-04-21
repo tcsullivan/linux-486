@@ -1,0 +1,9 @@
+default 0
+root (fd0)
+
+title Clyne/Linux
+kernel /boot/bzImage root=/dev/ram0 rw vga=788
+
+title Reboot
+reboot
+
