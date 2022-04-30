@@ -745,67 +745,34 @@ __attribute__((naked)) void _start(void)
     main();
 }
 
+static char ibuffer[0xc0000];
+static char obuffer[0x100000];
+
+static void decompress_file_to(char *srcfile, char *dstfile, mode_t mode);
+
 void main()
 {
-    static char ibuffer[0xc0000];
-    static char obuffer[0x100000];
-
     int ret;
-    int ifd, ofd;
-    struct kernel_stat info;
-    size_t st_size;
-    ssize_t br;
 
     print("Mounting /dev/fd0...\n");
 
-    //devtmpfs       /dev         devtmpfs mode=0755,nosuid    0     0
     ret = sys_mount("devtmpfs", "/dev", "devtmpfs", 0, NULL);
     if (ret != 0)
         panic("Failed to mount /dev!");
 
-    ret = sys_mount("/dev/fd0", "/mnt", "msdos", 0, NULL);
+    ret = sys_mount("/dev/fd0", "/mnt", "ext2", 0, NULL);
     if (ret != 0)
         panic("Failed to mount /dev/fd0!");
 
     print("Decompressing busybox...\n");
-
-    ret = sys_mount("ramfs", "/bin", "ramfs", 0, NULL);
-    if (ret != 0)
-        panic("Failed to mount!");
-
-    ret = sys_stat("/mnt/boot/busyboz", &info);
-    if (ret != 0)
-    	panic("Failed to stat busyboz!\n");
-    st_size = info.st_size;
-
-    ifd = sys_open("/mnt/boot/busyboz", O_RDONLY, 0);
-    if (ifd < 0)
-        panic("Failed to open busyboz!\n");
-
-    br = sys_read(ifd, ibuffer, st_size);
-    if (br != st_size)
-        panic("Failed to read busyboz!\n");
-
-    sys_close(ifd);
-
-    ofd = sys_open("/bin/busybox", O_CREAT | O_RDWR, 0);
-    if (ofd < 0)
-        panic("Failed to open busybox!\n");
-
-    unlzma(ibuffer, st_size, NULL, unlzma_flush, obuffer, NULL, panic);
-    if (ret != 0)
-        panic("Failed to decompress busyboz!");
-    else if (outlen == 0)
-        panic("Failed to fully decompress busyboz!");
-
-    br = sys_write(ofd, obuffer, outlen);
-    if (br != outlen)
-        panic("Failed to write busybox!\n");
-
-    sys_close(ofd);
+    decompress_file_to("/mnt/boot/busyboz", "/bin/busybox", 0755);
+    print("Decompressing libc...\n");
+    decompress_file_to("/mnt/lib/libc.lzm", "/lib/libc.so.0", 0755);
+    print("Decompressing ld.so...\n");
+    decompress_file_to("/mnt/lib/lduClibc.lzm", "/lib/ld-uClibc.so.0", 0755);
 
     sys_umount("/mnt");
-    sys_chmod("/bin/busybox", 0755);
+    //sys_umount("/dev");
 
     pid_t cid = sys_fork();
 
@@ -821,6 +788,47 @@ void main()
         const char *envp[] = { NULL };
         sys_execve("/bin/busybox", argv, envp);
     }
+}
+
+void decompress_file_to(char *srcfile, char *dstfile, mode_t mode)
+{
+    int ret;
+    int ifd, ofd;
+    struct kernel_stat info;
+    size_t st_size;
+    ssize_t br;
+
+    ret = sys_stat(srcfile, &info);
+    if (ret != 0)
+    	panic("Failed to stat srcfile!\n");
+    st_size = info.st_size;
+
+    ifd = sys_open(srcfile, O_RDONLY, 0);
+    if (ifd < 0)
+        panic("Failed to open srcfile!\n");
+
+    br = sys_read(ifd, ibuffer, st_size);
+    if (br != st_size)
+        panic("Failed to read srcfile!\n");
+
+    sys_close(ifd);
+
+    ofd = sys_open(dstfile, O_CREAT | O_RDWR, 0);
+    if (ofd < 0)
+        panic("Failed to open dstfile!\n");
+
+    unlzma(ibuffer, st_size, NULL, unlzma_flush, obuffer, NULL, panic);
+    if (ret != 0)
+        panic("Failed to decompress srcfile!");
+    else if (outlen == 0)
+        panic("Failed to fully decompress srcfile!");
+
+    br = sys_write(ofd, obuffer, outlen);
+    if (br != outlen)
+        panic("Failed to write dstfile!\n");
+
+    sys_close(ofd);
+    sys_chmod(dstfile, mode);
 }
 
 int *__errno_location(void)

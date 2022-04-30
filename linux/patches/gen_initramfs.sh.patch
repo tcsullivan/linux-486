@@ -1,0 +1,31 @@
+--- usr/gen_initramfs.sh	2022-04-08 07:59:05.000000000 -0400
++++ usr/gen_initramfs.sh.new	2022-04-21 08:51:04.635080820 -0400
+@@ -187,8 +187,8 @@
+ }
+ 
+ prog=$0
+-root_uid=0
+-root_gid=0
++root_uid="squash"
++root_gid="squash"
+ dep_list=
+ cpio_list=$(mktemp ${TMPDIR:-/tmp}/cpiolist.XXXXXX)
+ output="/dev/stdout"
+@@ -209,13 +209,13 @@
+ 			shift
+ 			;;
+ 		"-u")	# map $1 to uid=0 (root)
+-			root_uid="$1"
+-			[ "$root_uid" = "-1" ] && root_uid=$(id -u || echo 0)
++#			root_uid="$1"
++#			[ "$root_uid" = "-1" ] && root_uid=$(id -u || echo 0)
+ 			shift
+ 			;;
+ 		"-g")	# map $1 to gid=0 (root)
+-			root_gid="$1"
+-			[ "$root_gid" = "-1" ] && root_gid=$(id -g || echo 0)
++#			root_gid="$1"
++#			[ "$root_gid" = "-1" ] && root_gid=$(id -g || echo 0)
+ 			shift
+ 			;;
+ 		"-h")

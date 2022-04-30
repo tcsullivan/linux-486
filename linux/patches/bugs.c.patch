@@ -1,0 +1,156 @@
+--- arch/x86/kernel/cpu/bugs.c.new	2022-04-21 10:22:57.337425325 -0400
++++ arch/x86/kernel/cpu/bugs.c	2022-04-21 10:34:47.550249356 -0400
+@@ -36,6 +36,7 @@
+ 
+ #include "cpu.h"
+ 
++#ifndef CONFIG_M486
+ static void __init spectre_v1_select_mitigation(void);
+ static void __init spectre_v2_select_mitigation(void);
+ static void __init ssb_select_mitigation(void);
+@@ -45,6 +46,7 @@
+ static void __init taa_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+ static void __init l1d_flush_select_mitigation(void);
++#endif // CONFIG_M486
+ 
+ /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
+ u64 x86_spec_ctrl_base;
+@@ -112,6 +114,7 @@
+ 	if (boot_cpu_has(X86_FEATURE_STIBP))
+ 		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
+ 
++#ifndef CONFIG_M486
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
+ 	spectre_v2_select_mitigation();
+@@ -127,6 +130,7 @@
+ 	 * mitigation until after TAA mitigation selection is done.
+ 	 */
+ 	mds_print_mitigation();
++#endif // CONFIG_M486
+ 
+ 	arch_smt_update();
+ 
+@@ -248,6 +252,7 @@
+ 	[MDS_MITIGATION_VMWERV]	= "Vulnerable: Clear CPU buffers attempted, no microcode",
+ };
+ 
++#ifndef CONFIG_M486
+ static void __init mds_select_mitigation(void)
+ {
+ 	if (!boot_cpu_has_bug(X86_BUG_MDS) || cpu_mitigations_off()) {
+@@ -274,6 +279,7 @@
+ 
+ 	pr_info("%s\n", mds_strings[mds_mitigation]);
+ }
++#endif // CONFIG_M486
+ 
+ static int __init mds_cmdline(char *str)
+ {
+@@ -317,6 +323,7 @@
+ 	[TAA_MITIGATION_TSX_DISABLED]	= "Mitigation: TSX disabled",
+ };
+ 
++#ifndef CONFIG_M486
+ static void __init taa_select_mitigation(void)
+ {
+ 	u64 ia32_cap;
+@@ -388,6 +395,7 @@
+ out:
+ 	pr_info("%s\n", taa_strings[taa_mitigation]);
+ }
++#endif // CONFIG_M486
+ 
+ static int __init tsx_async_abort_parse_cmdline(char *str)
+ {
+@@ -463,6 +471,7 @@
+ 	wrmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_ctrl);
+ }
+ 
++#ifndef CONFIG_M486
+ static void __init srbds_select_mitigation(void)
+ {
+ 	u64 ia32_cap;
+@@ -487,6 +496,7 @@
+ 	update_srbds_msr();
+ 	pr_info("%s\n", srbds_strings[srbds_mitigation]);
+ }
++#endif // CONFIG_M486
+ 
+ static int __init srbds_parse_cmdline(char *str)
+ {
+@@ -504,6 +514,7 @@
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "L1D Flush : " fmt
+ 
++#ifndef CONFIG_M486
+ enum l1d_flush_mitigations {
+ 	L1D_FLUSH_OFF = 0,
+ 	L1D_FLUSH_ON,
+@@ -528,10 +539,12 @@
+ 	return 0;
+ }
+ early_param("l1d_flush", l1d_flush_parse_cmdline);
++#endif // CONFIG_M486
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V1 : " fmt
+ 
++#ifndef CONFIG_M486
+ enum spectre_v1_mitigation {
+ 	SPECTRE_V1_MITIGATION_NONE,
+ 	SPECTRE_V1_MITIGATION_AUTO,
+@@ -618,6 +631,7 @@
+ 	return 0;
+ }
+ early_param("nospectre_v1", nospectre_v1_cmdline);
++#endif // CONFIG_M486
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V2 : " fmt
+@@ -729,6 +743,7 @@
+ 	{ "seccomp,ibpb",	SPECTRE_V2_USER_CMD_SECCOMP_IBPB,	false },
+ };
+ 
++#ifndef CONFIG_M486
+ static void __init spec_v2_user_print_cond(const char *reason, bool secure)
+ {
+ 	if (boot_cpu_has_bug(X86_BUG_SPECTRE_V2) != secure)
+@@ -1071,6 +1086,7 @@
+ 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
+ 	spectre_v2_user_select_mitigation(cmd);
+ }
++#endif // CONFIG_M486
+ 
+ static void update_stibp_msr(void * __unused)
+ {
+@@ -1207,6 +1223,7 @@
+ 	{ "seccomp",	SPEC_STORE_BYPASS_CMD_SECCOMP }, /* Disable Speculative Store Bypass via prctl and seccomp */
+ };
+ 
++#ifndef CONFIG_M486
+ static enum ssb_mitigation_cmd __init ssb_parse_cmdline(void)
+ {
+ 	enum ssb_mitigation_cmd cmd = SPEC_STORE_BYPASS_CMD_AUTO;
+@@ -1316,6 +1333,7 @@
+ 	if (boot_cpu_has_bug(X86_BUG_SPEC_STORE_BYPASS))
+ 		pr_info("%s\n", ssb_strings[ssb_mode]);
+ }
++#endif // CONFIG_M486
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Speculation prctl: " fmt
+@@ -1573,6 +1591,7 @@
+ enum vmx_l1d_flush_state l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
+ EXPORT_SYMBOL_GPL(l1tf_vmx_mitigation);
+ 
++#ifndef CONFIG_M486
+ /*
+  * These CPUs all support 44bits physical address space internally in the
+  * cache but CPUID can report a smaller number of physical address bits.
+@@ -1926,3 +1945,4 @@
+ 	return cpu_show_common(dev, attr, buf, X86_BUG_SRBDS);
+ }
+ #endif
++#endif // CONFIG_M486

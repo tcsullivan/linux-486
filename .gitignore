@@ -1,2 +1,15 @@
+.*
+buildroot-2022.02.1.tar.xz
+buildroot-2022.02.1/
+busybox-1.20.0.tar.bz2
+busybox-1.20.0/
+linux-5.17.2.tar.xz
+linux-5.17.2/
+
 floppy.img
+floppy/boot/busyboz
+floppy/boot/bzImage
+floppy/lib/
+modules.img
+modules/
 preinit/init

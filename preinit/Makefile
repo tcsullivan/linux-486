@@ -1,5 +1,5 @@
 all:
-	gcc -m32 -march=i486 -mtune=i486 -fno-if-conversion -fno-if-conversion2 \
+	i486-linux-gcc \
 	    -static -nostdlib -nostartfiles -ffreestanding -fno-pic -fno-pie \
 	    -Os -ffunction-sections -fdata-sections -Wl,-gc-sections \
 	    -Ilinux-headers \

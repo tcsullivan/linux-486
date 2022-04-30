@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "Mounting filesystems..."
+mount -a
+mkdir /dev/pts
+mount devpts /dev/pts -t devpts -o gid=5,mode=620
+
+echo "Ready."
+

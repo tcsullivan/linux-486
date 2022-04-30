@@ -1,0 +1,26 @@
+--- arch/x86/kernel/cpu/intel.c.new	2022-04-21 10:30:16.303395343 -0400
++++ arch/x86/kernel/cpu/intel.c	2022-04-21 10:31:18.648938081 -0400
+@@ -752,6 +752,8 @@
+ }
+ #endif
+ 
++#ifndef CONFIG_M486
++
+ #define TLB_INST_4K	0x01
+ #define TLB_INST_4M	0x02
+ #define TLB_INST_2M_4M	0x03
+@@ -926,6 +928,14 @@
+ 	}
+ }
+ 
++#else
++
++static void intel_detect_tlb(struct cpuinfo_x86 *c)
++{
++}
++
++#endif // CONFIG_M486
++
+ static const struct cpu_dev intel_cpu_dev = {
+ 	.c_vendor	= "Intel",
+ 	.c_ident	= { "GenuineIntel" },
