@@ -12,6 +12,7 @@ A second floppy containing additional kernel modules can also be generated. Both
 * bash
 * wget
 * tar, xz, bzip2
+* Around **6GB** of available disk space
 
 ## Build steps
 
