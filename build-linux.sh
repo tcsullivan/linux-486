@@ -15,6 +15,8 @@ if [ ! -e ./linux-5.17.2 ] ; then
     echo "Patching Linux..."
     patch usr/gen_initramfs.sh < ../linux/patches/gen_initramfs.sh.patch
     # TODO: Other patches necessary? They do save some space...
+
+    ARCH=x86 CROSS_COMPILE=i486-buildroot-linux-uclibc- make olddefconfig
 else
     cd ./linux-5.17.2
 fi
@@ -31,7 +33,7 @@ echo "Calling sudo to create initramfs's /dev/console..."
 sudo mknod initrd/dev/console c 5 1
 
 echo "Building Linux..."
-make -j8
+ARCH=x86 CROSS_COMPILE=i486-buildroot-linux-uclibc- make -j8
 
 echo "Calling sudo to copy bzImage to the floppy folder..."
 sudo cp arch/x86/boot/bzImage ../floppy/boot/bzImage
