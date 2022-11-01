@@ -23,6 +23,8 @@ Run the build scripts in this order:
 4. `build-floppy.sh`
 5. `build-modules.sh`
 
+On my machine (Ryzen 1700x, 16GB RAM), building the toolchain takes around ten minutes; building Linux takes around a minute, and the remaining steps take less than a minute each.
+
 After successful execution of all scripts, you should have `floppy.img` (boot image) and `modules.img` (modules). These can be `dd`'d to a 1.44M 3.5" floppy disk.
 
 ## Booting the system
@@ -31,7 +33,6 @@ The system requires an i486 or better processor, a 3.5" floppy drive, and at lea
 
 Notes:
 
-* Once the system is booted, the boot floppy is no longer needed.
+* Once the system is booted, the boot floppy can be removed.
 * root's password is `toor`.
 * Mount the modules floppy to `/lib/modules`; then, use `modprobe` for loading and unloading.
-* The `msdos` module may need to be loaded to read MS-DOS/FAT floppies.
