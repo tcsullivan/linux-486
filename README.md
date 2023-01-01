@@ -34,6 +34,7 @@ The system requires an i486 or better processor, a 3.5" floppy drive, and at lea
 
 Notes:
 
+* Current Linux is v5.17.2. Older Linux (v2.x) uses less RAM for the kernel, and may be added later as a build option. Newer Linux (v6.x) appears to require well over 8MB of RAM to boot, so targeting newer kernels will be unlikely.
 * Once the system is booted, the boot floppy can be removed.
 * root's password is `toor`.
 * Mount the modules floppy to `/lib/modules`; then, use `modprobe` for loading and unloading.
